@@ -1,3 +1,4 @@
+import { ModeToggle } from "@/components/mode-toggle";
 import { ThemeProvider } from "@/components/theme-provider";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
@@ -16,7 +17,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="dark" style={{ colorScheme: "dark" }}>
+    <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
         <ThemeProvider
           attribute="class"
@@ -24,7 +25,14 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          {children}
+          <main className="min-h-full flex flex-col items-center p-4">
+            <div className="max-w-6xl w-full">
+              <div className="w-full flex flex-row-reverse">
+                <ModeToggle />
+              </div>
+              {children}
+            </div>
+          </main>
         </ThemeProvider>
       </body>
     </html>
