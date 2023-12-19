@@ -1,4 +1,5 @@
 import fs from "fs";
+import Link from "next/link";
 import path from "path";
 
 type Props = {
@@ -40,12 +41,12 @@ const Articles = (props: Props): JSX.Element => {
           const fileNameFormatted = fileNameWithoutExtension.replace(/-/g, " ");
           return (
             <li key={file}>
-              <a
+              <Link
                 href={`/articles/${props.params.topic}/${fileNameWithoutExtension}`}
                 className="capitalize hover:underline"
               >
                 {fileNameFormatted}
-              </a>
+              </Link>
             </li>
           );
         })}

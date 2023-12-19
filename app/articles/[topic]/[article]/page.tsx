@@ -1,5 +1,6 @@
 import fs from "fs";
 import { MDXRemote } from "next-mdx-remote/rsc";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import path from "path";
 import rehypePrism from "rehype-prism-plus";
@@ -51,10 +52,13 @@ const Article = (props: Props): JSX.Element => {
     <>
       <div className="flex flex-row gap-2 items-baseline mb-4">
         <h1 className="text-3xl capitalize">{title}</h1>/
-        <a href={`/articles/${props.params.topic}`} className="hover:underline">
+        <Link
+          href={`/articles/${props.params.topic}`}
+          className="hover:underline"
+        >
           Return to{" "}
           <span className="capitalize font-bold">{props.params.topic}</span>
-        </a>
+        </Link>
       </div>
       <div>
         Created {creationDate.toDateString()} - Last modication{" "}

@@ -1,4 +1,5 @@
 import fs from "fs";
+import Link from "next/link";
 import path from "path";
 
 const Home = () => {
@@ -13,12 +14,12 @@ const Home = () => {
           const files = fs.readdirSync(topicDirectory);
           return (
             <li key={folder}>
-              <a
+              <Link
                 href={`/articles/${folder}`}
                 className="capitalize text-xl hover:underline"
               >
                 {folder}
-              </a>{" "}
+              </Link>{" "}
               ( {files.length} )
             </li>
           );
