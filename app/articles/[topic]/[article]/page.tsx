@@ -1,6 +1,8 @@
 import fs from "fs";
+import { MDXRemote } from "next-mdx-remote/rsc";
 import { notFound } from "next/navigation";
 import path from "path";
+import rehypePrism from "rehype-prism-plus";
 
 type Props = {
   params: {
@@ -58,7 +60,14 @@ const Article = (props: Props): JSX.Element => {
         Created {creationDate.toDateString()} - Last modication{" "}
         {modificationDate.toDateString()}
       </div>
-      <div>{content}</div>
+      <MDXRemote
+        source={content}
+        options={{
+          mdxOptions: {
+            rehypePlugins: [rehypePrism],
+          },
+        }}
+      />
     </>
   );
 };

@@ -1,4 +1,3 @@
-Serial Garbage Collector
-Parallel Garbage Collector
-G1 Garbage Collector
-Z Garbage Collector
+```java
+System.out.println("hello world");
+```
