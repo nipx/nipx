@@ -1,6 +1,11 @@
-import fs from "fs";
+import { getArticles, getTopics } from "@/app/utils";
 import Link from "next/link";
-import path from "path";
+
+export async function generateStaticParams() {
+  return getTopics().map((topic) => {
+    return { topic };
+  });
+}
 
 type Props = {
   params: {
@@ -8,27 +13,14 @@ type Props = {
   };
 };
 
-export async function generateStaticParams() {
-  const articlesDirectory = path.join(process.cwd(), "articles");
-  const articleFolders = fs.readdirSync(articlesDirectory);
-  return articleFolders.map((folder) => {
-    return { topic: folder };
-  });
-}
-
-const Articles = (props: Props): JSX.Element => {
-  const topicDirectory = path.join(
-    process.cwd(),
-    "articles",
-    props.params.topic
-  );
-  const files = fs.readdirSync(topicDirectory);
+const Articles = async (props: Props): Promise<JSX.Element> => {
+  const { topic } = props.params;
+  const articles = await getArticles(topic);
   return (
     <div>
       <div className="flex flex-row gap-2 items-baseline mb-6">
         <h1 className="text-3xl">
-          Articles about{" "}
-          <span className="capitalize font-bold">{props.params.topic}</span>
+          Articles about <span className="capitalize font-bold">{topic}</span>
         </h1>
         /
         <a href="/" className="hover:underline">
@@ -36,16 +28,14 @@ const Articles = (props: Props): JSX.Element => {
         </a>
       </div>
       <ul className="list-disc">
-        {files.map((file) => {
-          const fileNameWithoutExtension = path.parse(file).name;
-          const fileNameFormatted = fileNameWithoutExtension.replace(/-/g, " ");
+        {articles.map((article) => {
           return (
-            <li key={file}>
+            <li key={article.id}>
               <Link
-                href={`/articles/${props.params.topic}/${fileNameWithoutExtension}`}
+                href={`/articles/${topic}/${article.id}`}
                 className="capitalize hover:underline"
               >
-                {fileNameFormatted}
+                {article.title}
               </Link>
             </li>
           );

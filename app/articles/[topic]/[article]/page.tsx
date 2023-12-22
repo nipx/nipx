@@ -1,9 +1,20 @@
-import fs from "fs";
-import { MDXRemote } from "next-mdx-remote/rsc";
+import type { Article } from "@/app/utils";
+import {
+  compileArticleMDX,
+  getArticleNames,
+  getArticlePath,
+  getSource,
+  getTopics,
+  getUtcDate,
+} from "@/app/utils";
+import { List } from "@/components/markdown/list";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import path from "path";
-import rehypePrism from "rehype-prism-plus";
+
+const components = {
+  ul: List,
+};
 
 type Props = {
   params: {
@@ -12,66 +23,31 @@ type Props = {
   };
 };
 
-const getContent = (filePath: string) => {
-  try {
-    return fs.readFileSync(filePath, "utf8");
-  } catch (error) {
-    notFound();
-  }
-};
-
 export async function generateStaticParams() {
-  const articlesDirectory = path.join(process.cwd(), "articles");
-  const articleFolders = fs.readdirSync(articlesDirectory);
-  return articleFolders.flatMap((folder) => {
-    const articleDirectory = path.join(articlesDirectory, folder);
-    const files = fs.readdirSync(articleDirectory);
-    return files.map((file) => {
-      const fileNameWithoutExtension = path.parse(file).name;
-      return { topic: folder, article: fileNameWithoutExtension };
+  return getTopics().flatMap((topic) => {
+    return getArticleNames(topic).map((article) => {
+      return { topic, article: path.parse(article).name };
     });
   });
 }
 
-const Article = (props: Props): JSX.Element => {
-  const title = props.params.article.split("-").join(" ");
-  const filePath = path.join(
-    process.cwd(),
-    "articles",
-    props.params.topic,
-    `${props.params.article}.md`
-  );
-
-  const content = getContent(filePath);
-
-  const fileStats = fs.statSync(filePath);
-  const creationDate = fileStats.birthtime;
-  const modificationDate = fileStats.mtime;
+const Article = async (props: Props): Promise<JSX.Element> => {
+  const { topic, article } = props.params;
+  const filePath = getArticlePath(topic, `${article}.md`);
+  const source = getSource(filePath, () => notFound());
+  const { content, frontmatter } = await compileArticleMDX(source, components);
+  const { title, creationDate } = frontmatter;
 
   return (
     <>
-      <div className="flex flex-row gap-2 items-baseline mb-4">
-        <h1 className="text-3xl capitalize">{title}</h1>/
-        <Link
-          href={`/articles/${props.params.topic}`}
-          className="hover:underline"
-        >
-          Return to{" "}
-          <span className="capitalize font-bold">{props.params.topic}</span>
+      <div className="flex flex-row gap-2 items-baseline mb-2">
+        <h1 className="text-3xl">{title}</h1>/
+        <Link href={`/articles/${topic}`} className="hover:underline">
+          Return to <span className="capitalize font-bold">{topic}</span>
         </Link>
       </div>
-      <div>
-        Created {creationDate.toDateString()} - Last modication{" "}
-        {modificationDate.toDateString()}
-      </div>
-      <MDXRemote
-        source={content}
-        options={{
-          mdxOptions: {
-            rehypePlugins: [rehypePrism],
-          },
-        }}
-      />
+      <div className="mb-2">{getUtcDate(creationDate)}</div>
+      <div>{content}</div>
     </>
   );
 };
